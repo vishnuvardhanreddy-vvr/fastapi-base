@@ -35,6 +35,11 @@ class Config:
         self.ENVIRONMENT = self._get("ENVIRONMENT", default="local")
         self.ROLES = self._get("ROLES")
 
+        self.CIRCUIT_BREAKER_FAIL_MAX_COUNT = self._get("CIRCUIT_BREAKER_FAIL_MAX_COUNT", default=3)
+        self.CIRCUIT_BREAKER_RESET_TIMEOUT = self._get("CIRCUIT_BREAKER_RESET_TIMEOUT", default=30)
+        self.CIRCUIT_BREAKER_PREFIX_NAME = self._get("CIRCUIT_BREAKER_PREFIX_NAME", default="cb")
+
+
 
 
     def _get(self, key:str, default:Any|None = None):
@@ -46,8 +51,4 @@ class Config:
             raise EnvironmentError(f"Missing required Environment Variable: '{key}'")
         return value
     
-from functools import lru_cache
-
-@lru_cache(maxsize=1)
-def get_config():
-    return Config()
+config = Config()

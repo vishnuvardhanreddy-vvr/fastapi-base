@@ -3,9 +3,9 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Tuple
 from fastapi import Request, HTTPException
-from app.settings.config import get_config
+from app.settings.config import config
 
-config = get_config()
+
 
 try:
     import redis.asyncio as aioredis   # redis‑py ≥ 4.2
@@ -48,7 +48,7 @@ class RedisStorage(BaseStorage):
     """
 
     def __init__(self):
-        redis_client = aioredis.from_url(get_config.REDIS_URL)
+        redis_client = aioredis.from_url(config.REDIS_URL)
         self.redis = redis_client
         self.script = self.redis.register_script(self.LUA)
 
@@ -88,7 +88,7 @@ def _build_storage(storage_type: str) -> BaseStorage:
 
 limiter = RateLimiter(limit=int(config.RATE_LIMIT_REQUESTS_COUNT), seconds=int(config.RATE_LIMIT_REQUESTS_TIME_IN_SECONDS), storage=_build_storage(config.RATE_LIMIT_REQUESTS_STORAGE_TYPE))
 
-async def check_rate(request: Request):
+async def rate_limiter(request: Request):
     client_ip = request.client.host
     if not await limiter.allow(client_ip):
         raise HTTPException(status_code=429, detail="Rate limit exceeded")

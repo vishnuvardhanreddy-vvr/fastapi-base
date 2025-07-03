@@ -1,0 +1,100 @@
+<!-- status.html  (serve from /static) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Service Status</title>
+<style>
+  :root{
+    --ok:#2ecc71;--bad:#e74c3c;--wait:#f1c40f;--bg:#f9fafb;--card:#fff;--radius:14px
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  body{
+    font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);
+    display:flex;flex-direction:column;align-items:center;padding:2rem
+  }
+
+  h1{margin-bottom:1.5rem;color:#333}
+
+  .grid{display:flex;flex-wrap:wrap;gap:1.2rem;justify-content:center}
+
+  .card{
+    width:260px;min-height:50px;background:var(--card);
+    border:3px solid var(--wait);border-radius:var(--radius);
+    padding:1rem 1.2rem;display:flex;flex-direction:column;justify-content:space-between;
+    transition:border-color .25s;
+  }
+  .card:hover{
+    opacity: 70%;
+  }
+  .ok{border-color:var(--ok);color:var(--ok)}
+  .bad{border-color:var(--bad);color:var(--bad)}
+  .wait{border-color:var(--wait);color:#444}
+  .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+  .code{font-weight:bold}
+  .msg{font-size:.85rem;word-break:break-all;color:#555;}
+</style>
+</head>
+<body>
+<h1>Service Status</h1>
+
+<div id="grid" class="grid"></div>
+
+<script>
+// ───────── 1) Declare endpoints here – add / remove freely ────────────────
+const endpoints = [
+  { label: "health", url: "/health" },
+  { label: "ready",  url: "/ready"  },
+  { label: "test",  url: "/cb/call"  },
+];
+
+// ───────── 2) Dynamically build cards ─────────────────────────────────────
+const grid = document.getElementById("grid");
+
+for (const ep of endpoints) {
+  const card = document.createElement("div");
+  card.className = "card wait";
+  card.id = `card-${ep.label}`;
+
+  card.innerHTML = `
+      <div class="row">
+         <span>${ep.label}</span>
+         <span id="code-${ep.label}" class="code">…</span>
+      </div>
+      <div id="msg-${ep.label}" class="msg">waiting…</div>
+  `;
+  grid.appendChild(card);
+}
+
+// ───────── 3) Probe each endpoint once ────────────────────────────────────
+(async function () {
+  for (const ep of endpoints) {
+    const codeEl = document.getElementById(`code-${ep.label}`);
+    const cardEl = document.getElementById(`card-${ep.label}`);
+    const msgEl  = document.getElementById(`msg-${ep.label}`);
+
+    try {
+      const res = await fetch(ep.url, { cache: "no-store" });
+      const txt = await res.text().catch(() => "");
+
+      if (res.ok) {
+        cardEl.className = "card ok";
+        codeEl.textContent = res.status;
+        msgEl.textContent = res.statusText || "OK";
+      } else {
+        cardEl.className = "card bad";
+        codeEl.textContent = res.status;
+        msgEl.textContent = res.statusText || "FAIL";
+      }
+    } catch (e) {
+      cardEl.className = "card bad";
+      codeEl.textContent = "ERR";
+      msgEl.textContent = e.toString();
+    }
+  }
+})(); // IIFE – runs once, no auto-refresh
+</script>
+</body>
+</html>

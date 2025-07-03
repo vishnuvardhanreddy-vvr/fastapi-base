@@ -9,10 +9,14 @@
 ### Foldr Structure
 ```bash
 fastapi-base
+├── .env
 ├── .env.example
 ├── .gitignore
 ├── app
 │   ├── __init__.py
+│   ├── admin_test
+│   │   ├── __init__.py
+│   │   └── route.py
 │   ├── app.py
 │   ├── default
 │   │   ├── __init__.py
@@ -31,15 +35,21 @@ fastapi-base
 │   │   ├── logging.py
 │   │   ├── monitor.py
 │   │   └── ratelimiter.py
+│   ├── static
+│   │   ├── __init__.py
+│   │   └── status.html
 │   ├── user
 │   │   ├── __init__.py
 │   │   ├── route.py
 │   │   └── schema.py
 │   └── utils
 │       ├── __init__.py
+│       ├── cb_utils.py
+│       ├── circuit_breaker.py
 │       └── redis_cache.py
 ├── LICENSE
 ├── README.md
+├── Dockerfile
 └── requirements.txt
 ```
 
@@ -69,13 +79,13 @@ fastapi-base
 ### ▶️ Development (with hot reload)
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn app:app --reload
 ```
 
 ### 🔐 Production (Uvicorn, multiple workers)
 
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4 --log-level info
+uvicorn app:app --host 0.0.0.0 --port 8000 --workers 4 --log-level info
 ```
 
 ### 🛡 Production (Gunicorn + Uvicorn workers)

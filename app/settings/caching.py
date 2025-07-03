@@ -1,9 +1,9 @@
-from app.settings.config import get_config
+from app.settings.config import config
 from cachetools import TTLCache
 from redis.asyncio import from_url
 from app.utils.redis_cache import AsyncRedisTTLCache
 
-config = get_config()
+
 
 if config.CACHING_STORAGE_TYPE == "redis":
     redis = from_url(config.REDIS_URL, encoding="utf8", decode_responses=True)

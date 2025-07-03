@@ -1,8 +1,8 @@
 import atexit
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-from app.settings.config import get_config
+from app.settings.config import config
 
-_config = get_config()
+_config = config
 
 _client: AsyncIOMotorClient = AsyncIOMotorClient(
     _config.MONGODB_CONNECTION_STRING,
